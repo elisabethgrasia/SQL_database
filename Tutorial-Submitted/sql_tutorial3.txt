@@ -1,0 +1,28 @@
+a). Create a room table with the attributes (roomNo,hotelNo,type,price,guestNo), where roomNo and hotelNo together form the primary key. 
+
+CREATE TABLE room(     
+  roomNo INT,
+  hotelNo VARCHAR(15),
+  type VARCHAR(15),
+  price INT,
+  guestNo INT, 
+ 
+  PRIMARY KEY (roomNo, hotelNo) 
+);
+
+
+b) Insert some values into the room table so that the table record is as follows: 
+INSERT INTO room VALUES(101, 'Hilton', 'Standard', 350, NULL);
+INSERT INTO room VALUES(101, 'Home', 'Single', 1, 12345);
+INSERT INTO room VALUES(333, 'Home', 'Master', 150, 54321);
+INSERT INTO room VALUES(333, 'Hilton', 'President', 1000, 12345);
+
+c) INSERT INTO room
+     VALUES (101,'Home','Double',200,20000);
+
+d) INSERT INTO room
+     VALUES (101,Null,'Double',200,20000); 
+
+e) INSERT INTO room
+     VALUES (202,'Hilton','Double',200,20000); 
+	

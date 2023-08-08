@@ -1,0 +1,640 @@
+CREATE TABLE parent(
+	parentID numeric(8) PRIMARY KEY,
+	firstName varchar(15),
+	lastName varchar(15),
+	fullName varchar(30),
+	email varchar(30),
+	dateOfBirth numeric(8),
+	contactNo numeric(15),
+	address varchar(30),
+	suburb varchar(15),
+	postCode numeric(7),
+	state varchar(15),
+	country varchar(15),
+	isBankAccountVerified varchar(3),
+);
+
+CREATE TABLE student(
+	studentID numeric(8) PRIMARY KEY,
+	firstName varchar(15),
+	lastName varchar(20),
+	fullName varchar(30),
+	email varchar(30),
+	dateOfBirth numeric(8),
+	contactNo numeric(15),
+	address varchar(30),
+);
+
+# add foreign key into student table after adding data to parent table
+ALTER TABLE student
+	ADD parentID numeric(8)
+	CONSTRAINT fk_parent
+	FOREIGN KEY (parentID)
+	REFERENCES parent(parentID);
+
+CREATE TABLE staff(
+	staffID numeric(8) PRIMARY KEY,
+	firstName varchar(15),
+	lastName varchar(20),
+	fullName varchar(30),
+	email varchar(30),
+	dateOfBirth numeric(8),
+	contactNo numeric(15),
+	address varchar(30),
+	suburb varchar(15),
+	postCode numeric(7),
+	state varchar(15),
+	country varchar(15),
+	managerID numeric(8),
+	tutorID numeric(8),
+);
+
+CREATE TABLE tutor(
+	tutorID numeric(8) PRIMARY KEY,
+	facultyDepartment varchar(15),
+	qualification varchar(20),
+	staffID numeric(8),
+	PRIMARY KEY (tutorID, staffID),
+);
+
+# ADD foreign key into tutor table after adding data to staff table
+ALTER TABLE tutor
+	ADD CONSTRAINT fk_tutor
+	FOREIGN KEY (staffID)
+	REFERENCES staff(staffID);
+
+
+CREATE TABLE manager(
+	managerID numeric(8),
+	level varchar(15),
+	role varchar(15),
+	staffID numeric(8),
+	PRIMARY KEY (managerID, staffID),
+);
+
+# Add foreign key into manager table after adding data to staff table
+ALTER TABLE manager
+	ADD CONSTRAINT fk_manager
+	FOREIGN KEY (staffID)
+	REFERENCES staff(staffID);
+
+# Add foreign key into staff table
+ALTER TABLE staff ADD managerID numeric(8);
+ALTER TABLE staff ADD tutorID numeric(8);
+
+ALTER TABLE staff
+	ADD CONSTRAINT fk_staff1
+	FOREIGN KEY (managerID, staffID)
+	REFERENCES manager([managerID], [staffID]);
+
+ALTER TABLE staff
+	ADD CONSTRAINT fk_staff2
+	FOREIGN KEY (tutorID, staffID)
+	REFERENCES tutor([tutorID], [staffID]);
+
+CREATE TABLE courseEnrolment(
+	courseID varchar(8),
+	studentID numeric(8),
+	enroledDate numeric(8),
+	isCompleted varchar(3),
+	PRIMARY KEY (courseID, studentID),
+	FOREIGN KEY (courseID) REFERENCES course(courseID),
+	FOREIGN KEY (studentID) REFERENCES student(studentID),
+);
+
+CREATE TABLE course(
+	courseID varchar(8) PRIMARY KEY,
+	courseName varchar(20),
+	courseTotalUnits numeric(3),
+	courseDuration varchar(2),
+	courseLevel varchar(10),
+);
+	
+CREATE TABLE courseSubject(
+	courseID varchar(8),
+	subjectID varchar(8),
+	PRIMARY KEY (courseID, subjectID),
+	FOREIGN KEY (courseID) REFERENCES course(courseID),
+	FOREIGN KEY (subjectID) REFERENCES subject(subjectID),
+);
+
+CREATE TABLE subject(
+	subjectID varchar(8) PRIMARY KEY,
+	subjectName varchar(20),
+	subjectPrice numeric(20),
+	offeringSession varchar(20),
+);
+
+CREATE TABLE subjectEnrolment(
+	subjectID varchar(8),
+	studentID numeric(8),
+	enroledDate numeric(8),
+	isCompleted varchar(3),
+	PRIMARY KEY (subjectID, studentID),
+	FOREIGN KEY (subjectID) REFERENCES subject(subjectID),
+	FOREIGN KEY (studentID) REFERENCES student(studentID),
+);
+
+CREATE TABLE class(
+	classID numeric(8) PRIMARY KEY,
+	subjectID varchar(8),
+	tutorID numeric(8),
+	staffID numeric(8),
+	FOREIGN KEY (subjectID) REFERENCES subject(subjectID),
+	FOREIGN KEY (tutorID) REFERENCES tutor(tutorID),
+	FOREIGN KEY (staffID) REFERENCES staff(staffID),
+);
+
+# add foreign key tutorID into class table
+ALTER TABLE class
+	ADD CONSTRAINT fk_class
+	FOREIGN KEY (tutorID, staffID)
+	REFERENCES tutor([tutorID], [staffID]);
+
+CREATE TABLE classEnrolment(
+	courseID varchar(8),
+	studentID numeric(8),
+	PRIMARY KEY (courseID, studentID),
+	FOREIGN KEY (courseID) REFERENCES course(courseID),
+	FOREIGN KEY (studentID) REFERENCES student(studentID),
+);
+
+CREATE TABLE payment(
+	paymentID numeric(8) PRIMARY KEY,
+	amount numeric(50),
+	studentID numeric(8),
+	FOREIGN KEY (studentID) REFERENCES student(studentID),
+);
+
+CREATE TABLE classTimetable(
+	timetableID varchar(10) PRIMARY KEY,
+	days varchar(15),
+	classSlot numeric(30),
+	zoomLink varchar(30),
+	classID numeric(8),
+	commenceDate numeric(8),
+	finishDate numeric(8),
+	tutorID numeric(8),
+	staffID numeric(8),
+	FOREIGN KEY (classID) REFERENCES class(classID),
+	FOREIGN KEY (tutorID, staffID) REFERENCES tutor(tutorID, staffID),
+	FOREIGN KEY (timetableID) REFERENCES staffRoster(timetableID),
+);
+
+CREATE TABLE staffRoster(
+	timetableID varchar(10) PRIMARY KEY,
+	days varchar(15),
+	startTime numeric(4),
+	finishTime numeric(4),
+	room varchar(10),
+);	
+
+CREATE TABLE rosterTimetable(
+	timetableID varchar(10),
+	staffID numeric(8),
+	PRIMARY KEY (timetableID, staffID),
+	FOREIGN KEY (timetableID) REFERENCES staffRoster(timetableID),
+	FOREIGN KEY (staffID) REFERENCES staff(staffID),
+);
+
+----------------------INSERTING DATA-------------------------------------------------------------
+INSERT INTO parents VALUES (107, 'Charlie', 'Holmes', 'Charlie Holmes', 'charlieholmes@gmail.com', 05061988, 0436802474, '58 Albert Street', 'Sandalwood', 5309, 'VIC', 'Australia', 'yes')
+INSERT INTO parents VALUES (108, 'Cherry', 'Clark', 'Cherry Clark', 'cherryclark@gmail.com', 12081990, 0414526734, '75 Wright Street, 'Bombeeta', 4871, 'QLD', 'Australia', 'yes')
+INSERT INTO parents VALUES (110, 'Lenny', 'Owens', 'Lenny Owens', 'lennyowens@gmail.com', 08071980, 0458466123, '35 Railway Street', 'Purrawunda', 4356, 'QLD', 'Australia', 'yes')
+INSERT INTO parents VALUES (120, 'Connie', 'Rogers', 'Connie Rogers', 'connierogers@gmail.com', 07051979, 0485642315, '71 Wharf Street', 'Glenworth Valley', 2250, 'NSW', 'Australia', 'yes')
+INSERT INTO parents VALUES (113, 'Adrianna', 'Falcon', 'Adrianna Falcon', 'adriannaf@gmail.com', 08091989, 0458963275, '43 Muscar Street', 'North Wialki', 6473, 'WA', 'Australia', 'yes')
+INSERT INTO parents VALUES (109, 'Perkins', 'Sale', 'Perkins Sale', 'perkinssale@gmail.com', 08061988, 0455896223, '3 Hodgon Street', 'The hermitage', 4370, 'QLD', 'Australia', 'yes')
+INSERT INTO parents VALUES (115, 'Eric', 'Wilson', 'Eric Wilson', 'ericwilson@gmail.com', 17041984, 0477852133, '90 Jacolite Street', 'Lesmurdie', 6076, 'WA', 'Australia', 'yes')
+INSERT INTO parents VALUES (121, 'Arnold', 'Murphy', 'Arnold Murphy', 'arnoldmurphy@gmail.com', 18091992, 0445789562, '69 Dossiter Street', 'Whorouly', 3735, 'VIC', 'Australia', 'yes')
+INSERT INTO parents VALUES (134, 'Justin', 'Ellis', 'Justin Ellis', 'justinellis@gmail.com', 12031985, 04451203365, '56 Kooljack Street', 'Bovell', 6208, 'WA', 'Australia', 'yes')
+INSERT INTO parents VALUES (154, 'Leonardo', 'Harper', 'Leonardo Harper', 'leonardoharper@gmail.com', 15061988, 04895566321, '89 Inglewood Court', 'Lerderberg', 3458, 'VIC', 'Australia', 'yes')
+
+INSERT INTO student VALUES (113456, 'Kevin', 'Holmes', 'Kevin Holmes', 'kevinholmes@gmail.com', 18052010, 0455216546, '58 Albert Street', 107)
+INSERT INTO student VALUES (116756, 'Sophia', 'Clark', 'Sophia Clark', 'sophiaclark@gmail.com', 12032005, 0456123457, '75 Wright Street, 108)
+INSERT INTO student VALUES (156674, 'Grace', 'Campbell', 'Grace Campbell', 'gracecampbell@gmail.com', 01082006, 04585234456, '35 Railway Street', 110)
+INSERT INTO student VALUES (137688, 'Natalie', 'Rogers', 'Natalie Rogers', 'natalierogers@gmail.com', 05022004, 04885569125, '71 Wharf Street', 120)
+INSERT INTO student VALUES (224412, 'Alfred', 'Bjornson', 'Alfred Bjornson', 'alfredbjornson@gmail.com', 14052006, 04881524697, '43 Muscar Street', 113)
+INSERT INTO student VALUES (113465, 'Madelyine', 'Ferguson', 'Madelyine Ferguson', 'mferguson@gmail.com', 15082005, 04885426379, '3 Hodgon Street', 109)
+INSERT INTO student VALUES (116676, 'Nicole', 'Dexter', 'Nicole Dexter', 'nicoledexter@gmail.com', 08122007, 047845123, '90 Jacolite Street', 115)
+INSERT INTO student VALUES (225563, 'Cadie', 'Murphy', 'Cadie Murphy', 'cadiemurphy@gmail.com', 05022007, 04854422157, '69 Dossiter Street', 121)
+INSERT INTO student VALUES (157564, 'Charlotte', 'Henderson', 'Charlotte Henderson', 'charlottehenderson@gmail.com', 08052008, 04775412698, '56 Kooljack Street', 134)
+INSERT INTO student VALUES (157638, 'Kirsten', 'Harper', 'Kirsten Harper', 'kirstenharper@gmail.com', 14062004, 04556984125, '89 Inglewood Court', 154)
+
+INSERT INTO staff VALUES (578, 'Honey', 'Owens', 'Honey Owens', 'honeyownes@onetut.com', 02041991, 04352267849, '87 Insignia Way', 'West Kalgoorlie', 6430, 'WA', 'Australia', 785, NULL)
+INSERT INTO staff VALUES (562, 'Dainton', 'Chloe', 'Dainton Chloe', 'daintonchloe@onetut.com', 12081998, 04884512716, '75 Fairview Street', 'Tesbury', 3260, 'VIC', 'Australia', 778, NULL)
+INSERT INTO staff VALUES (568, 'Sophie', 'Edwards', 'Sophie Edwars', 'sophieedwars@onetut.com', 08122000, 04785541236, '88 Stanley Drive', 'Laguna Quays', 4800, 'QLD', 'Australia', 795, NULL)
+INSERT INTO staff VALUES (542, 'Adam', 'Murphy', 'Adam Murphy', 'adammurphy@onetut.com', 02061994, 04854426789, '55 Ranworth Road', 'COMO', 6152, 'WA', 'Australia', NULL, 331)
+INSERT INTO staff VALUES (589, 'Steven', 'Carter', 'Steven Carter', 'stevencarter@onetut.com', 15041996, 0488745126, '97 Stanley Drive', 'Parramatta', 2450, 'NSW', 'Australia', NULL, 338)
+INSERT INTO staff VALUES (557, 'Lily', 'Hunt', 'Lily Hunt', 'lilyhunt@onetut.com', 17041998, 04754899784, '390 Mandible Street', 'Menzies', 4825, 'QLD', 'Australia', NULL, 385)
+INSERT INTO staff VALUES (531, 'Dainton', 'Richards', 'Dainton Richards', 'daintonrichards@onetut.com', 05021997, 04778451698, '20 Rockhampton QLD', 'South Yaamba', 4702, 'QLD', 'Australia', NULL, 336)
+INSERT INTO staff VALUES (559, 'Lana', 'Watson', 'Lana Watson', 'lanawatson@onetut.com', 05061990, 04552367891, '40 Faunce Crescent', 'Pucawan', 2666, 'WA', 'Australia', NULL, 327)
+INSERT INTO staff VALUES (534, 'Henderson', 'Myers', 'Henderson Myers', 'hendersonmyers@onetut.com', 05061996, 04222657789, '88 Rupara Street', 'Deakin West', 2600, 'ACT', 'Australia', NULL, 384)
+INSERT INTO staff VALUES (558, 'Reid', 'Myers', 'Henderson Myers', 'hendersonmyers@onetut.com', 05061996, 04222657789, '88 Rupara Street', 'Deakin West', 2600, 'ACT', 'Australia', NULL, 339)
+INSERT INTO staff VALUES (521, 'Crisan', 'Sullivan', 'Crisan Sullivan', 'crisansullivan@onetut.com', 08121998, 04785412356, '33 Banksia Street', 'Coondle West', 6566, 'WA', 'Australia', NULL, 379)
+INSERT INTO staff VALUES (547, 'Nicole', 'Natalie', 'Nicole Nathalie', 'nicolenathalie@onetut.com', 08071999, 04774581298, '99 Avondale Street', 'Wooramel', 6701, 'WA', 'Australia', NULL, 372)
+INSERT INTO staff VALUES (558, 'Edmund', 'Richardo', 'Edmund Richardo', 'edmundrichardo@onetut.com', 25011997, 04551247896, '33 Mc Evoy Street', 'Waterloo', 2017, 'NSW', 'Australia', NULL, NULL)
+INSERT INTO staff VALUES (574, 'Kirsten', 'Steward', 'Kirsten Steward', 'kirstenstew@onetut.com', 23041998, 04894561278, '3 Wilhelmina Street', 'Gosford', 2250, 'NSW', 'Australia', NULL, NULL)
+INSERT INTO staff VALUES (565, 'Isyana', 'Nathalie', 'Isyana Nathalie', 'isyananathalie@onetut.com', 22051990, 04333445578, '533 Kent Street', 'Sydney CBD', 2000, 'NSW', 'Australia', NULL, NULL)
+
+INSERT INTO payment VALUES(88596521, 6000, 113456)
+INSERT INTO payment VALUES(88547524, 8000, 116756)
+INSERT INTO payment VALUES(03556452, 8000, 156674)
+INSERT INTO payment VALUES(03457856, 8000, 137688)
+INSERT INTO payment VALUES(55213578, 9500, 224412)
+INSERT INTO payment VALUES(05642898, 8000, 113465)
+INSERT INTO payment VALUES(55985512, 9500, 225563)
+INSERT INTO payment VALUES(03485695, 6000, 157564)
+INSERT INTO payment VALUES(55962430, 8000, 156674)
+INSERT INTO payment VALUES(03568754, 8000, 116676)
+
+INSERT INTO courseEnrolment VALUES ('U9910', 113456, 5012022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U8020', 116756, 6012022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U9910', 156674, 5052022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U3919', 137688, 12062022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U9910', 224412, 5052022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U5910', 113465, 5012022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U9910', 116676, 04012022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U5910', 225563, 05122022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U3919', 157564, 19042022, 'yes');
+INSERT INTO courseEnrolment VALUES ('U8020', 157638, 08052022, 'yes'); 
+
+INSERT INTO course VALUES('U9910', 'Social', 3, '3m', 'easy')
+INSERT INTO course VALUES('U8020', 'Computer', 4, '4m', 'hard')
+INSERT INTO course VALUES('U5910', 'Language', 4, '4m', 'hard')
+INSERT INTO course VALUES('U3919', 'Economic', 4, '6m', 'medium')
+
+INSERT INTO courseSubject VALUES ('U9910', 'SO333')
+INSERT INTO courseSubject VALUES ('U9910', 'SO312')
+INSERT INTO courseSubject VALUES ('U9910', 'SO342')
+INSERT INTO courseSubject VALUES ('U8020', 'CO133')
+INSERT INTO courseSubject VALUES ('U8020', 'CO123')
+INSERT INTO courseSubject VALUES ('U8020', 'CO323')
+INSERT INTO courseSubject VALUES ('U8020', 'CO121')
+INSERT INTO courseSubject VALUES ('U5910', 'LA342')
+INSERT INTO courseSubject VALUES ('U5910', 'LA332')
+INSERT INTO courseSubject VALUES ('U5910', 'LA223')
+INSERT INTO courseSubject VALUES ('U5910', 'LA253')
+INSERT INTO courseSubject VALUES ('U3919', 'ECO12')
+INSERT INTO courseSubject VALUES ('U3919', 'ECO23')
+INSERT INTO courseSubject VALUES ('U3919', 'ECO34')
+INSERT INTO courseSubject VALUES ('U3919', 'ECO35')
+
+INSERT INTO subjectEnrolment VALUES('CO121', 116676, 6012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO123', 116676, 6012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO133', 116676, 6012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO323', 116676, 6012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO333', 113456, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO312', 113456, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO342', 113456, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO333', 156674, 5052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO312', 156674, 5052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO342', 156674, 5052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO12', 137688, 12062022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO23', 137688, 12062022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO34', 137688, 12062022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO35', 137688, 12062022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO333', 224412, 5052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO312', 224412, 5052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO342', 224412, 5052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA342', 113465, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA332', 113465, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA223', 113465, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA253', 113465, 5012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO333', 116676, 04012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO312', 116676, 04012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('SO342', 116676, 04012022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA342', 225563, 05122022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA332', 225563, 05122022, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA223', 225563, 05122021, 'yes');
+INSERT INTO subjectEnrolment VALUES('LA253', 225563, 05122021, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO12', 157564, 19042022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO23', 157564, 19042022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO34', 157564, 19042022, 'yes');
+INSERT INTO subjectEnrolment VALUES('ECO35', 157564, 19042022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO121', 157638, 08052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO123', 157638, 08052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO133', 157638, 08052022, 'yes');
+INSERT INTO subjectEnrolment VALUES('CO323', 157638, 08052022, 'yes');
+
+INSERT INTO subject VALUES('CO123', 'python programming', 2350, 'Spring')
+INSERT INTO subject VALUES('CO323', 'sql programming', 2350, 'Spring')
+INSERT INTO subject VALUES('CO121', 'basic probability', 2350, 'Spring')
+INSERT INTO subject VALUES('CO133', 'database management', 2350, 'Spring')
+INSERT INTO subject VALUES('SO333', 'ethics politics', 2000, 'Autumn')
+INSERT INTO subject VALUES('SO312', 'society', 2000, 'Autumn')
+INSERT INTO subject VALUES('SO342', 'work community', 2000, 'Autumn')
+INSERT INTO subject VALUES('LA342', 'Germany, 2350, 'Autumn')
+INSERT INTO subject VALUES('LA332', 'Italy', 2350, 'Autumn')
+INSERT INTO subject VALUES('LA223', 'English', 2350, 'Autumn')
+INSERT INTO subject VALUES('LA253', 'Chinese', 2350, 'Autumn')
+INSERT INTO subject VALUES('ECO12', 'communication skills', 2350, 'Spring')
+INSERT INTO subject VALUES('ECO23', 'economics', 2350, 'Spring')
+INSERT INTO subject VALUES('ECO34', 'marketing systems', 2350, 'Spring')
+INSERT INTO subject VALUES('ECO35', 'financial report', 2350, 'Spring')
+
+INSERT INTO staffRoster VALUES(8850, 'Monday', 0700, 0859, 'carmelia')
+INSERT INTO staffRoster VALUES(8740, 'Monday', 0900, 1059, 'carmelia')
+INSERT INTO staffRoster VALUES(9560, 'Monday', 1100, 1900, 'lily')
+INSERT INTO staffRoster VALUES(8851, 'Tuesday', 0700, 1500, 'carmelia')
+INSERT INTO staffRoster VALUES(8741, 'Tuesday', 0900, 1059, 'carmelia')
+INSERT INTO staffRoster VALUES(9561, 'Tuesday', 1100, 1900, 'lily')
+INSERT INTO staffRoster VALUES(8852, 'Wednesday', 0700, 1500, 'carmelia'
+INSERT INTO staffRoster VALUES(8742, 'Wednesday', 0900, 1059, 'carmelia'))
+INSERT INTO staffRoster VALUES(9562, 'Wednesday', 1100, 1900, 'lily')
+INSERT INTO staffRoster VALUES(8853, 'Thursday', 0700, 1500, 'carmelia')
+INSERT INTO staffRoster VALUES(8743, 'Thursday', 0900, 1059, 'carmelia')
+INSERT INTO staffRoster VALUES(9563, 'Thursday', 1100, 1900, 'lily')
+INSERT INTO staffRoster VALUES(8854, 'Friday', 0700, 1500, 'carmelia')
+INSERT INTO staffRoster VALUES(8744, 'Friday', 0900, 1059, 'carmelia')
+INSERT INTO staffRoster VALUES(9564, 'Friday', 1100, 1900, 'lily')
+INSERT INTO staffRoster VALUES(1111, 'Monday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(1112, 'Monday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(2221, 'Tuesday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(2222, 'Tuesday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(3331, 'Wednesday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(3332, 'Wednesday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(4441, 'Thursday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(4442, 'Thursday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(5551, 'Friday', 0800, 1600, 'admin')
+INSERT INTO staffRoster VALUES(5552, 'Friday', 0800, 1600, 'admin')
+
+INSERT INTO manager VALUES(785, 'teamLeaders', 'tutor coordinator', 578)
+INSERT INTO manager VALUES(778, 'supervisor', 'marketing and staff manager', 562)
+INSERT INTO manager VALUES(795, 'CEO', 'whole company coordinator', 568)
+
+INSERT INTO tutor VALUES (331, 'Computer', 'master degree', 542)
+INSERT INTO tutor VALUES (338, 'Computer', 'master degree', 589)
+INSERT INTO tutor VALUES (385, 'Computer', 'master degree', 557)
+INSERT INTO tutor VALUES (336, 'Social' 'bachelor', 531)
+INSERT INTO tutor VALUES (327, 'Social', 'bachelor', 559)
+INSERT INTO tutor VALUES (384, 'Language', 'bachelor', 534)
+INSERT INTO tutor VALUES (339, 'Language', 'master degree', 558)
+INSERT INTO tutor VALUES (379, 'Economics', 'bachelor', 521)
+INSERT INTO tutor VALUES (332, 'Economics', 'bachelor', 547)
+
+INSERT INTO class VALUES (3504, 'CO123', 331, 542);
+INSERT INTO class VALUES (3554, 'CO323', 331, 542);
+INSERT INTO class VALUES (3584, 'CO121', 338, 589);
+INSERT INTO class VALUES (3567, 'CO133', 385, 557);
+INSERT INTO class VALUES (4578, 'SO333', 336, 531);
+INSERT INTO class VALUES (4956, 'SO312', 327, 559);
+INSERT INTO class VALUES (4528, 'SO342', 327, 559);
+INSERT INTO class VALUES (8956, 'LA342', 384, 534);
+INSERT INTO class VALUES (8754, 'LA332', 384, 534);
+INSERT INTO class VALUES (8524, 'LA223', 339, 558);
+INSERT INTO class VALUES (8643, 'LA253', 339, 558);
+INSERT INTO class VALUES (7546, 'ECO12', 379, 521);
+INSERT INTO class VALUES (7844, 'ECO23', 379, 521);
+INSERT INTO class VALUES (7654, 'ECO34', 332, 547);
+INSERT INTO class VALUES (7243, 'ECO35', 332, 547);
+
+INSERT INTO classTimetable VALUES(8850, 'Monday', 10, 'meeting.co123.us', 3504, 01082022, 01122022, 331, 542);
+INSERT INTO classTimetable VALUES(8740, 'Monday', 10, 'meeting.co323.us', 3554, 01082022, 01122022, 331, 542);
+INSERT INTO classTimetable VALUES(9560, 'Monday', 10, 'meeting.co121.us', 3584, 01082022, 01122022, 338, 589);
+INSERT INTO classTimetable VALUES(8851, 'Tuesday', 10, 'meeting.co133.us', 3567, 01082022, 01122022, 385, 557);
+INSERT INTO classTimetable VALUES(8741, 'Tuesday', 15, 'meeting.so333.us', 4578, 01032022, 01062022, 336, 531);
+INSERT INTO classTimetable VALUES(9561, 'Tuesday', 15, 'meeting.so312.us', 4956, 01032022, 01062022, 327, 559);
+INSERT INTO classTimetable VALUES(8852, 'Wednesday', 20, 'meeting.so342.us', 4528, 01032022, 01062022, 327, 559);
+INSERT INTO classTimetable VALUES(8742, 'Wednesday', 20, 'meeting.la342.us', 8956, 01032022, 01072022, 384, 534);
+INSERT INTO classTimetable VALUES(9562, 'Wednesday', 20, 'meeting.la332.us', 8754, 01032022, 01072022, 384, 534);
+INSERT INTO classTimetable VALUES(8853, 'Thursday', 20, 'meeting.la223.us', 8524, 01032022, 01072022, 339, 558);
+INSERT INTO classTimetable VALUES(8743, 'Thursday', 20, 'meeting.la253.us', 8643, 01032022, 01072022, 339, 558);
+INSERT INTO classTimetable VALUES(9563, 'Thursday', 20, 'meeting.eco12.us', 7546, 01082022, 01022023, 379, 521);
+INSERT INTO classTimetable VALUES(8854, 'Friday', 20, 'meeting.eco23.us', 7844, 01082022, 01022023, 379, 521);
+INSERT INTO classTimetable VALUES(8744, 'Friday', 20, 'meeting.eco34.us', 7654, 01082022, 01022023, 332, 547);
+INSERT INTO classTimetable VALUES(9564, 'Friday', 20, 'meeting.eco35.us', 7243, 01082022, 01022023, 332, 547);
+
+INSERT INTO rosterTimetable VALUES(8740, 542)
+INSERT INTO rosterTimetable VALUES(8741, 531)
+INSERT INTO rosterTimetable VALUES(8742, 534)
+INSERT INTO rosterTimetable VALUES(8743, 558)
+INSERT INTO rosterTimetable VALUES(8744, 547)
+INSERT INTO rosterTimetable VALUES(8850, 542)
+INSERT INTO rosterTimetable VALUES(8851, 557)
+INSERT INTO rosterTimetable VALUES(8853, 558)
+INSERT INTO rosterTimetable VALUES(8854, 521)
+INSERT INTO rosterTimetable VALUES(9560, 589)
+INSERT INTO rosterTimetable VALUES(9561, 559)
+INSERT INTO rosterTimetable VALUES(9562, 534)
+INSERT INTO rosterTimetable VALUES(9563, 521)
+INSERT INTO rosterTimetable VALUES(9564, 547)
+INSERT INTO rosterTimetable VALUES(1111, 565)
+INSERT INTO rosterTimetable VALUES(1112, 574)
+INSERT INTO rosterTimetable VALUES(2221, 575)
+INSERT INTO rosterTimetable VALUES(2222, 574)
+INSERT INTO rosterTimetable VALUES(3331, 575)
+INSERT INTO rosterTimetable VALUES(3332, 565)
+INSERT INTO rosterTimetable VALUES(4441, 574)
+INSERT INTO rosterTimetable VALUES(4442, 575)
+INSERT INTO rosterTimetable VALUES(5551, 565)
+INSERT INTO rosterTimetable VALUES(5552, 574)
+
+ 
+-------------------------------------------------------------Queries------------------------------------------------------------------------
+# 1. (additional query) student fullname who enrolled in a specific subject
+SELECT s.fullName, su.subjectName
+	FROM student s 
+	INNER JOIN subjectEnrolment se
+	ON s.studentID=se.studentID
+	INNER JOIN subject su
+	ON se.subjectID=su.subjectName;
+
+# 2. (additional query) course name and each subjects
+SELECT co.courseName, s.subjectName
+	FROM course co
+	INNER JOIN courseSubject cs
+	ON co.courseID=cs.courseID
+	INNER JOIN subject s
+	ON cs.subjectID=s.subjectID;
+
+# 3. (additional query) number of students who in each subject
+## it is limited to show the courseName in the result table because of the aggregate function showing number of student.
+## Because of the limitation, the specific course which student enrolled can only be seen by the query, 
+## other option to access the enrolled subject can be done by using subject enrolment way (ignore specific course-which this happens in WSU subject enrolment).
+## this task can be done in two ways (the queries below give the same result).
+SELECT cs.subjectID, COUNT(g.num) AS numberOfStudent
+	FROM (SELECT ce.studentID AS num, co.courseID
+		FROM courseEnrolment ce
+		INNER JOIN course co
+		ON co.courseID=ce.courseID) AS g, courseSubject cs
+	WHERE g.courseID=cs.courseID
+	GROUP BY cs.subjectID;
+
+SELECT cs.subjectID, COUNT(ce.studentID) AS numberOfStudent
+	FROM courseEnrolment ce
+	INNER JOIN course c
+	ON c.courseID=ce.courseID
+	INNER JOIN courseSubject cs
+	ON cs.courseID=c.courseID
+	GROUP BY cs.subjectID;
+
+# 4. number of student in particular subject in a specific course
+## it is limited to show the courseName in the result table because of the aggregate function showing number of student.
+## Because of the limitation, the specific course which student enrolled can only be seen by the query 
+
+# subject = 'Italy'	; course = 'Language'
+SELECT su.subjectName, COUNT(g.num) AS numberOfStudent
+	FROM (SELECT ce.studentID AS num, co.courseName, co.courseID
+		FROM courseEnrolment ce
+		INNER JOIN course co
+		ON co.courseID=ce.courseID AND co.courseName='Language') AS g, courseSubject cs, subject su
+	WHERE g.courseID=cs.courseID AND cs.subjectID=su.subjectID AND su.subjectName='Italy'
+	GROUP BY su.subjectName;
+
+
+# 5. Tutor in particular subject
+SELECT s.fullName, s.staffID, s.address, s.contactNo
+	FROM staff s
+	JOIN tutor t
+	ON s.tutorID = t.tutorID
+	JOIN class c
+	ON t.tutorID=c.tutorID AND c.subjectID='CO123';
+
+# 6. the average, minimum and maximum price of the units in a course (values and subject's name of each price)
+## a. Average price in each course (in this case, the subjectName is not shown as it is an average price from all subjects in each course)
+SELECT c.courseName, Avg(su.subjectPrice)
+	FROM course c
+	INNER JOIN courseSubject cs
+	ON c.courseID=cs.courseID
+	INNER JOIN subject su
+	ON cs.subjectID=su.subjectID
+	GROUP BY c.courseName;
+
+## Minimum price of unit in a course
+### b. for course 'Social'
+SELECT su.subjectName, Min(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U9910'
+	GROUP BY su.subjectName;
+
+### c. for course 'Economic'
+SELECT su.subjectName, Min(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U3919'
+	GROUP BY su.subjectName;
+
+### d. for course 'Language'
+SELECT su.subjectName, Min(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U5910'
+	GROUP BY su.subjectName;
+
+### e. for course 'Computer'
+SELECT su.subjectName, Min(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U8020'
+	GROUP BY su.subjectName;
+
+## Maximum price of unit in a course
+### f. for course 'Social'
+SELECT su.subjectName, Max(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U9910'
+	GROUP BY su.subjectName;
+
+### g. for course 'Economic'
+SELECT su.subjectName, Max(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U3919'
+	GROUP BY su.subjectName;
+
+### h. for course 'Language'
+SELECT su.subjectName, Max(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U5910'
+	GROUP BY su.subjectName;
+
+### i. for course 'Computer'
+SELECT su.subjectName, Max(su.subjectPrice)
+	FROM courseSubject cs
+	INNER JOIN subject su
+	ON su.subjectID=cs.subjectID AND cs.courseID='U8020'
+	GROUP BY su.subjectName;
+
+
+# 7. list name of tutors and their corresponding course and subjects in each course that they teach
+SELECT h.fullName, co.courseName, h.subjectName
+	FROM (SELECT s.fullName, su.subjectName, su.subjectID
+		FROM staff s
+		INNER JOIN class cl
+		ON s.tutorID=cl.tutorID
+		INNER JOIN subject su
+		ON su.subjectID=cl.subjectID) as h
+	INNER JOIN courseSubject cs
+	ON h.subjectID=cs.subjectID
+	INNER JOIN course co
+	ON co.courseID=cs.courseID;
+
+# 8. subjects and their scheduled time and date
+SELECT j.subjectName, j.commenceDate, j.finishDate, sr.days, sr.startTime, sr.finishTime
+	FROM (SELECT su.subjectName, ct.timetableID, ct.commenceDate, ct.finishDate
+		FROM subject su
+		INNER JOIN class cl
+		ON su.subjectID=cl.subjectID
+		INNER JOIN classTimetable cl
+		ON ct.classID=cl.classID) AS j
+	INNER JOIN staffRoster sr
+	ON j.timetableID=sr.timetableID;
+
+# 9. name of students who enrolled in a course (the result shows in all course)
+SELECT s.fullName, co.courseName
+	FROM student s
+	INNER JOIN courseEnrolment ce
+	ON s.studentID=ce.studentID AND ce.isCompleted='yes'
+	INNER JOIN course co
+	ON ce.courseID=co.courseID;
+
+# 10. parent with their kids enrolled in a subject of a course
+## in our case, all of the subjects are grouped into certain course, thus we directly access the subjectEnrolment instead of course.
+SELECT DISTINCT p.fullName AS parentName, s.fullName AS studentName, su.isCompleted AS enrolledSubjects
+	FROM student s
+	INNER JOIN parent p
+	ON p.parentID=s.parentID
+	INNER JOIN subjectEnrolment su
+	ON s.studentID=su.studentID AND su.isCompleted='yes';
+
+# 11. staff who works on Thursdays 
+SELECT st.fullName, st.contactNo, sr.days AS workOn
+	FROM staff st
+	INNER JOIN rosterTimetable rt
+	ON st.staffID=rt.staffID
+	INNER JOIN staffRoster sr
+	ON rt.timetableID=sr.timetableID AND sr.days='Thursday';
+
+#### additional query to check administration staff details (supporting query no.11)
+	SELECT *
+		FROM staff
+		WHERE tutorID IS NULL AND managerID IS NULL;
+
+# 12. parents whose accounts are not verified by Bank
+SELECT fullName, isBankAccVerified
+	FROM parent
+	WHERE isBankAccVerified='no';
+
+# 13. total payment per student
+SELECT s.fullName, SUM(su.subjectPrice)
+	FROM student s
+	JOIN subjectEnrolment se
+	ON s.studentID = se.studentID
+	JOIN subject su
+	ON se.subjectID = su.subjectID
+	GROUP BY s.fullName;
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+

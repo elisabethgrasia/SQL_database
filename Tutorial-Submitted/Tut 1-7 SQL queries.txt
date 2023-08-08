@@ -1,0 +1,153 @@
+Tutorial 2
+
+5. Create table in SQL - subject
+
+CREATE TABLE subject(
+	subjectCode numeric(8),
+	subjectName varchar(20) NOT NULL,
+	subjectCoordinator varchar(20) NOT NULL,
+	subjectLecturer varchar (20),
+	subjectTutor varchar (20),
+	PRIMARY KEY (subjectCode),
+);
+
+6. Drop the table
+
+DROP TABLE subject;
+
+----------------------------------------------------------------------------------
+Tutorial 3
+5.
+	UPDATE room1
+		SET price=price*0.8
+		WHERE hotelName='Hilton';
+
+6. 
+	SELECT *
+		WHERE price>100;
+
+-----------------------------------------------------------------------------------
+Tutorial 4
+
+SELECT *
+	FROM room1
+	WHERE hotelName='Home' AND price<150
+	ORDER BY roomNo;
+
+SELECT *
+	FROM room1
+	WHERE hotelName='Home' AND price<150
+	ORDER BY type;
+
+CREATE VIEW rooms AS
+	SELECT roomNo, hotelName
+	FROM room1
+	WHERE price > 150
+
+SELECT * FROM rooms;
+
+SELECT hotelName, type, FLOOR(price+0.25) AS 'floor() price'
+ 	FROM room1;
+
+------------------------------------------------------------------------------------
+Tutorial 5
+
+#first we have to create the course table as reference for foreign key in the unit table
+
+CREATE TABLE course(
+	courseID numeric(10) NOT NULL PRIMARY KEY,
+	courseName varchar(20),
+	courseCoordinator varchar(20),
+);
+
+CREATE TABLE unit(
+	unitID numeric(10) NOT NUL PRIMARY KEY,
+	unitName varchar(20),
+	numberOfCredits numeric(3),
+	coordinator varchar(20),
+	fee integer Check (fee<5000),
+	courseID numeric FOREIGN KEY (courseID)
+	REFERENCES course(courseID),
+);
+
+-------------------------------------------------------------------------------------
+Tutorial 6
+
+INSERT INTO guest VALUES (123, 'Mary', 02031988, 'Mars')
+INSERT INTO guest VALUES (234, 'Kardashian', 310599, 'Jupyter')
+INSERT INTO guest VALUES (345, 'Budi', 040687, 'Neptunus')
+INSERT INTO guest VALUES (456, 'Anne', 060756, 'Earth')
+INSERT INTO guest VALUES (567, 'Doremi', 080977, 'Mars')
+INSERT INTO guest VALUES (678, 'John', 091298, 'Mars)
+
+INSERT INTO room1 VALUES (343, 22222, 'Home', 'Junior Suite', 300)
+INSERT INTO room1 VALUES (501, 11111, 'Hilton', 'President Suite', 2000)
+
+SELECT Count(roomNo)
+	FROM room1;
+
+ALTER TABLE room1
+	ALTER COLUMN guestNo numeric(8);
+
+UPDATE room1 SET guestNo = 123 WHERE roomNo = 101;
+UPDATE room1 SET guestNo = 234 WHERE roomNo = 205;
+UPDATE room1 SET guestNo = 345 WHERE roomNo = 333;
+UPDATE room1 SET guestNo = 456 WHERE roomNo = 343;
+UPDATE room1 SET guestNo = 567 WHERE roomNo = 401;
+UPDATE room1 SET guestNo = 678 WHERE roomNo = 501;
+
+ALTER TABLE room1
+	ADD CONSTRAINT fk_guestNo
+		FOREIGN KEY (guestNo)
+		REFERENCES guest(guestNo);
+
+SELECT guest.guestNo, guest.name
+	FROM guest, room1
+	WHERE guest.guestNo=room1.guestNo AND guest.address='Mars'
+
+SELECT guest.name, hotelName
+	FROM guest, room1
+	GROUP BY name, hotelName
+	HAVING Count(name) > 1;
+
+-------------------------------------------------------------------------------
+Tutorial 7
+
+ALTER TABLE student
+	ALTER COLUMN emails varchar(25);
+
+INSERT INTO student VALUES (2030249, 'John', 'Gary', 'Mars', '2030249@student.edu.au', 300977)
+INSERT INTO student VALUES (3340294, 'Simon', 'Bull', 'Earth', '3340294@student.edu.au', 300977)
+INSERT INTO student VALUES (3304949, 'Graham', 'Jones', 'Mars', '3304949@student.edu.au', 301276)
+INSERT INTO student VALUES (2398123, 'Christina', 'Aguilera', 'Earth', '2398123@student.edu.au', 300977)
+INSERT INTO student VALUES (614150, 'Justin', 'Bieber', 'Jupyter', '614150@student.edu.au', 718293)
+INSERT INTO student VALUES (452334, 'Simon', 'Bomboloni', 'Mars', '452334@student.edu.au', 311452)
+INSERT INTO student VALUES (2293029, 'Bertha', 'Lie', 'Earth', '2293029@student.edu.au', 300977)
+INSERT INTO student VALUES (4351237, 'Ling', 'Kritikos', 'Jupyter', '4351237@student.edu.au', 344556)
+
+CREATE TABLE staff(
+	staffID numeric(10) NOT NULL PRIMARY KEY,
+	staffName varchar(20) NOT NULL,
+	address varchar(20),
+	emails varchar(25),
+	unit varchar(10),
+);
+
+INSERT INTO staff VALUES (1123456, 'Jonathan', 'Marsden Park', '1123456@student.edu.au', 300977)
+INSERT INTO staff VALUES (2234567, 'Andreas', 'Sydney CBD', '2234567@student.edu.au', 718293)
+INSERT INTO staff VALUES (3345678, 'Peter', 'Schofields', '3345678@student.edu.au', 301276)
+INSERT INTO staff VALUES (4456789, 'Christiana', 'Waterloo', '4456789@student.edu.au', 311452)
+INSERT INTO staff VALUES (5567890, 'Juliana', 'Jupyter', '5567890@student.edu.au', 344556)
+INSERT INTO staff VALUES (6678901, 'Simon', 'Marsden Park', '6678901@student.edu.au', 711890)
+INSERT INTO staff VALUES (7789012, 'Jacob, 'Sydney CBD', '7789012@student.edu.au', 311456)
+INSERT INTO staff VALUES (8890123, 'Job', 'Schofields', '8890123@student.edu.au', 411562)
+
+SELECT student.firstName, lastName, student.emails, staff.staffName, staff.emails
+	FROM student, staff
+	WHERE student.unit=300977 AND staff.unit=300977;
+
+SELECT name FROM guest,
+	(SELECT count(*) AS rooms, guestNo FROM room1 GROUP BY guestNo) AS count
+	WHERE guest.guestNo=count.guestNo AND rooms>=3;
+
+	

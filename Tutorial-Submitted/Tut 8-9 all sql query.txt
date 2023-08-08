@@ -1,0 +1,24 @@
+Tutorial 8
+
+CREATE VIEW [hotel] AS
+	SELECT hotelNo, hotelName
+	FROM room;
+
+INSERT INTO guest(guestNo, guestName)
+	SELECT staffID, fullName
+	FROM staff;
+
+DROP VIEW hotel;
+
+CREATE VIEW [hotel] AS
+	SELECT r.hotelName, r.roomNo, g.guestName
+	FROM room r, guest g
+	WHERE r.guestNo=g.guestNo;
+
+
+DROP VIEW hotel;
+
+CREATE VIEW [hotel] AS
+	SELECT hotelNo, hotelName, count(distinct hotelNo) AS numberOfRoom
+	FROM room 
+	GROUP BY hotelNo, hotelName;

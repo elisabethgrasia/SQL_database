@@ -1,0 +1,324 @@
+TUTORIAL 2
+
+CREATE TABLE parents(
+	studentID numeric(8) NOT NULL PRIMARY KEY,
+	parentsName varchar(20) NOT NULL,
+	bankAccount numeric(12) NOT NULL,
+	address varchar(20),
+);
+
+CREATE TABLE staff(
+	staffID numeric(8) NOT NULL PRIMARY KEY,
+	staffName varchar(20) NOT NULL,
+	unit numeric(8),
+	emails varchar(25) NOT NULL,
+);
+
+CREATE TABLE subject(
+	subjectID numeric(8) NOT NULL PRIMARY KEY,
+	subjectName varchar(20) NOT NULL,
+	subjectLevel numeric(2),
+	coordinator varchar(20),
+	lecturer varchar(20),
+	tutor varchar (20),
+);
+
+CREATE TABLE zoomClass(
+	zoomClassID numeric(8) NOT NULL,
+	subjectID numeric(8) NOT NULL,
+	subjectName varchar (20),
+	studentID numeric(8),
+	studentName varchar (20),
+	PRIMARY KEY (zoomClassID, subjectID),
+);
+
+DROP TABLE parents;
+DROP TABLE staff;
+DROP TABLE subject;
+DROP TABLE zoomClass;
+
+------------------------------------------------------------------------------------
+TUTORIAL 3
+
+CREATE TABLE room(
+	roomNo numeric(5) NOT NULL,
+	hotelNo varchar(30) NOT NULL,
+	type varchar(30) NOT NULL,
+	price numeric(7) NOT NULL,
+	guestNo numeric(8),
+	PRIMARY KEY (roomNo, hotelNo)
+);
+
+INSERT INTO room VALUES (101, 'Hilton', 'Standard', 350, NULL);
+INSERT INTO room VALUES (101, 'Home', 'Single', 1, 12345);
+INSERT INTO room VALUES (333, 'Home', 'Master', 150, 54321);
+INSERT INTO room VALUES (333, 'Hilton', 'President', 1000, 12345);
+
+INSERT INTO room VALUES (101, 'Home', 'Double', 200, 20000);
+
+INSERT INTO room VALUES (101, NULL, 'Double', 200, 20000);
+
+INSERT INTO room VALUES (202, 'Hilton', 'Double', 200, 20000);
+
+DELETE FROM room WHERE roomNo=303;
+
+DELETE FROM room WHERE roomNo=333 AND hotelNo='Home';
+INSERT INTO room VALUES (333, 'Home', 'Master', 150, 54321);
+
+DELETE FROM room WHERE roomNo=333 AND hotelNo='Hilton';
+INSERT INTO room VALUES (333, 'Hilton', 'President', 1000, 12345);
+
+TRUNCATE TABLE room;
+SELECT * FROM room;
+INSERT INTO room VALUES (101, 'Hilton', 'Standard', 350, NULL);
+INSERT INTO room VALUES (101, 'Home', 'Single', 1, 12345);
+INSERT INTO room VALUES (333, 'Home', 'Master', 150, 54321);
+INSERT INTO room VALUES (333, 'Hilton', 'President', 1000, 12345);
+SELECT * FROM room;
+
+UPDATE room SET price=5500 WHERE roomNo=333 AND hotelNo='Hilton';
+
+UPDATE room SET price=price+price*0.15;
+
+SELECT * FROM room WHERE hotelNo='Home';
+
+SELECT roomNo, price FROM room WHERE hotelNo='Home';
+
+INSERT INTO room VALUES (343, 'Home', 'Junior Suite', 300, 45612);
+INSERT INTO room VALUES (501, 'Hilton', 'President Suite', 2000, 67812);
+UPDATE room SET price=350 WHERE roomNo=343 AND hotelNo='Home';
+UPDATE room SET price=price+price*0.15 WHERE roomNo=101;
+
+-------------------------------------------------------------------------------------
+TUTORIAL 4
+
+CREATE TABLE room(
+	roomNo numeric(5) NOT NULL,
+	hotelNo varchar(30) NOT NULL,
+	type varchar(30) NOT NULL,
+	price numeric(7) NOT NULL,
+	guestNo numeric(8),
+	PRIMARY KEY (roomNo, hotelNo),
+);
+
+INSERT INTO room VALUES (101, 'Hilton', 'Standard', 350, NULL);
+INSERT INTO room VALUES (101, 'Home', 'Single', 1, 12345);
+INSERT INTO room VALUES (333, 'Home', 'Master', 150, 54321);
+INSERT INTO room VALUES (333, 'Hilton', 'President', 1000, 12345);
+
+SELECT DISTINCT hotelNo FROM room;
+
+SELECT * FROM room WHERE NOT hotelNo='Home' AND roomNo=101;
+
+SELECT * FROM room WHERE NOT hotelNo='Home' OR roomNo=101;
+
+SELECT * 
+	FROM room
+	WHERE hotelNo='Home'
+	ORDER BY roomNo DESC;
+
+SELECT * 
+	FROM room
+	WHERE price>110
+	ORDER BY price;
+
+SELECT * 
+	FROM room
+	WHERE price>110
+	ORDER BY type DESC;
+
+ALTER TABLE room
+	ADD roomview varchar(20);
+UPDATE room
+	SET roomview='oceanView'
+	WHERE roomNo=101;
+
+SELECT * FROM room WHERE roomNo=101;
+
+ALTER TABLE room DROP COLUMN roomview;
+
+ALTER TABLE room DROP COLUMN hotelNo;
+
+ALTER TABLE room ALTER COLUMN price decimal(3,2);
+
+CREATE TABLE guest(
+	guestNo numeric(8),
+	guestName varchar(20),
+	address varchar(30),
+);
+
+ALTER TABLE guest DROP COLUMN guestNo;
+ALTER TABLE guest ADD guestNo numeric(8);
+SELECT * FROM guest;
+
+------------------------------------------------------------------------------------------
+TUTORIAL 5
+
+DROP TABLE guest;
+DROP TABLE room;
+
+CREATE TABLE room(
+	roomNo numeric(5) NOT NULL,
+	hotelNo varchar(30) NOT NULL,
+	hotelName varchar(20),
+	type varchar(30) DEFAULT 'Single' CHECK(type='Single' OR type='Double' OR type='Master' OR type='President'),
+	price numeric(7) CHECK(price>0 AND price<100000),
+	guestNo numeric(8),
+);
+
+ALTER TABLE room
+	ADD CONSTRAINT pk_rooms
+	PRIMARY KEY (roomNo, hotelNo);
+
+ALTER TABLE room
+	ADD CONSTRAINT fk_room
+	FOREIGN KEY (guestNo)
+	REFERENCES guest(guestNo);
+
+CREATE TABLE guest(
+	guestNo numeric(8) NOT NULL PRIMARY KEY,
+	guestName varchar(30) NOT NULL UNIQUE,
+	gender varchar(2) CHECK (gender='male' OR gender='female'),
+	email varchar(20) NOT NULL UNIQUE,
+	nationality varchar(20),
+);
+ALTER TABLE room
+	ADD CONSTRAINT fk_room
+	FOREIGN KEY (guestNo)
+	REFERENCES guest(guestNo);
+
+Insert into guest values (12345, ‘James Bond’, ‘jbond@security.gov.uk’,’man’, ‘United Kingdom’);
+
+Insert into guest values (12345, ‘James Bond’, ‘jbond@security.gov.uk’,’male’, 
+‘United Kingdom’);
+
+Insert into guest values (54321, ‘James Bond’, ‘jbond@security.gov.uk’,’male’, ‘Great Britain’);
+
+Insert into guest values (null, ‘Jason Borne’, ‘jborne@security.gov’,’male’, ‘USA’);
+
+Insert into guest values (54321, ‘Super Man’, Null,’male’, ‘Mars’);
+
+Insert into guest (guestNo,guestName,nationality) values (11111,’Lady 
+Gaga’,’USA’);
+
+----------------------------------------------------------------------------------------------------------------
+TUTORIAL 6
+
+SELECT * FROM guest;
+SELECT * FROM room;
+
+INSERT INTO room VALUES (101, 123456, 'Home', 'Standard', 300, 54321);
+INSERT INTO room VALUES (101, 654321, 'Ibis', 'Standard', 300, NULL);
+INSERT INTO room VALUES (101, 987654, 'Hilton', 'President', 15000, NULL);
+INSERT INTO room VALUES (222, 987654, 'Hilton', 'Standard', 300, 12345);
+INSERT INTO room VALUES (321, 987654, 'Hilton', 'Master', 1000, 11111);
+INSERT INTO room VALUES (333, 123456, 'Home', 'Single', 100, NULL);
+INSERT INTO room VALUES (333, 987654, 'Hilton', 'Standard', 300, 12345);
+INSERT INTO room VALUES (567, 654321, 'Ibis', 'Standard', 300, NULL);
+INSERT INTO room VALUES (888, 654321, 'Ibis', 'Single', 100, NULL);
+INSERT INTO room VALUES (999, 654321, 'Ibis', 'Double', 200, NULL);
+
+INSERT INTO guest VALUES (11111, 'Lady Gaga', NULL, NULL, 'USA');
+INSERT INTO guest VALUES (12345, 'James Bond', 'jbond@security.gov.uk', 'Male', 'United Kingdom');
+INSERT INTO guest VALUES (54321, 'Super Man', NULL, 'Male', 'Mars');
+
+SELECT * FROM guest, room WHERE guest.guestNo=room.guestNo;
+
+SELECT *
+	FROM room INNER JOIN guest
+	ON room.guestNo=guest.guestNo;
+
+SELECT *
+	FROM guest g, room r
+	WHERE g.guestNo=r.guestNo;
+
+SELECT * FROM guest, room WHERE guest.guestName='James Bond' AND guest.guestNo=room.guestNo;
+
+SELECT *
+	FROM room INNER JOIN guest
+	ON guest.guestName='James Bond' AND room.guestNo=guest.guestNo;
+
+SELECT *
+	FROM guest g, room r
+	WHERE g.guestName='James Bond' AND g.guestNo=r.guestNo;
+
+SELECT guestNo, guestName
+	FROM room, guest
+	WHERE room.guestNo=guest.guestNo AND hotelName='Hilton';
+
+SELECT room.roomNo, room.hotelName
+	FROM guest, room
+	WHERE price>500 AND guest.gender='Male'
+	ORDER BY price;
+
+SELECT guest.gender, Avg(price)
+	FROM guest, room
+	WHERE guest.guestNo=room.guestNo
+	GROUP BY gender;
+
+SELECT guest.guestName, Sum(price)
+	FROM guest, room
+	WHERE guest.guestNo=room.guestNo
+	GROUP BY guest.guestName;
+
+SELECT Count(roomNo)
+	FROM guest, room
+	WHERE guest.guestNo=room.guestNo AND guest.guestName='James Bond';
+
+SELECT g.guestName
+	FROM room r JOIN guest g
+	ON r.guestNo=g.guestNo
+	GROUP BY guestName
+	HAVING SUM(r.price) > 500;
+
+SELECT guestNo, Count(guestNo) AS rooms
+	FROM room
+	GROUP BUY guestNo
+	HAVING COUNT(guestNo) >= 2;
+
+------------------------------------------------------------------------------------
+TUTORIAL 7
+SELECT g.guestName, r.price
+	FROM room r FULL OUTER JOIN (SELECT guestName, guestNo FROM guest) g
+	ON (g.guestNo = r.guestNo)
+	WHERE r.guestNo IS NOT NULL;
+
+SELECT g.guestName, SUM(r.price)
+	FROM room r FULL OUTER JOIN guest g
+	ON (g.guestNo = r.guestNo)
+	WHERE r.guestNo IS NOT NULL
+	GROUP BY guestName;
+
+CREATE TABLE staff(
+	staffNo int NOT NULL PRIMARY KEY,
+	staffName varchar(50) NOT NULL,
+	email varchar(50),
+	address varchar(50),
+	salary numeric(6),
+);
+
+INSERT INTO staff(staffNo, staffName) VALUES (11114567, 'Super Man');
+INSERT INTO staff(staffNo, staffName) VALUES (34533333, 'Super Man');
+INSERT INTO staff(staffNo, staffName) VALUES (98012456, 'Iron Man');
+
+SELECT staffName AS Name FROM staff
+	UNION
+SELECT guestName FROM guest;
+
+SELECT staffName AS Name FROM staff
+	INTERSECT
+SELECT guestName FROM guest;
+
+SELECT staffName AS Name FROM staff
+	EXCEPT
+SELECT guestName FROM guest;
+
+SELECT * FROM room WHERE price < (SELECT MAX(price)/2 FROM room);
+
+SELECT guest.guestName
+	FROM room, guest
+	WHERE guest.guestNo=room.guestNo AND price > (SELECT AVG(price) FROM room);
+
+SELECT guestname FROM guest,
+	(SELECT COUNT(*) AS rooms, guestNo FROM room GROUP BY guestNo) count
+	WHERE guest.guestNo = count.guestNo AND rooms >3;
